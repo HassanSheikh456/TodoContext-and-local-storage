@@ -1,6 +1,8 @@
 "use client";
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { TodoProvider } from "@/components/contexts";
+import TodoForms from "@/components/elements/TodoForms";
+import TodoItem from "@/components/elements/TodoItem";
 
 type Todo = {
   id: number;
@@ -42,6 +44,20 @@ const Page = () => {
     );
   };
 
+  useEffect(() => {
+    const stored = localStorage.getItem("todos");
+    if (!stored) return;
+
+    const parsed = JSON.parse(stored);
+    if (Array.isArray(parsed)) {
+      setTodos(parsed);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
+
   return (
     <TodoProvider
       value={{ todos, addTodo, deleteTodo, toggleComplete, updatedTodo }}
@@ -51,8 +67,16 @@ const Page = () => {
           <h1 className="text-2xl font-bold text-center mb-8 mt-2">
             Manage your Todos
           </h1>
-          <div>{/* {Todos gose here} */}</div>
-          <div></div>
+          <div className="mb-4">
+            <TodoForms />
+          </div>
+          <div className="flex flex-wrap gap-y-3">
+            {todos.map((todo) => (
+              <div key={todo.id} className="w-full">
+                <TodoItem todo={todo} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </TodoProvider>
